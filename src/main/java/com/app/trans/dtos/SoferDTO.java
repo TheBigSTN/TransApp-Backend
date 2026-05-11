@@ -33,8 +33,4 @@ public class SoferDTO {
         this.telefon = telefon;
         this.email = email;
     }
-
-    // Empty constructor
-    public SoferDTO() {
-    }
 }

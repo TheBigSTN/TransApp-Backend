@@ -57,7 +57,7 @@ public class Cursa {
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "id_anexa", nullable = true)
+    @JoinColumn(name = "id_anexa")
     private Anexa anexa;
 
     public Cursa(){

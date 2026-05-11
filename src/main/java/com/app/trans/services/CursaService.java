@@ -2,10 +2,9 @@ package com.app.trans.services;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.app.trans.dtos.CursaDTO;
@@ -23,26 +22,16 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class CursaService {
 
-    @Autowired
-    private CursaRepo cursaRepo;
-
-    @Autowired
-    private CursaDTOMapper cursaDTOMapper;
-
-    @Autowired
-    private MasinaService masinaService;
-
-    @Autowired
-    private SoferService soferService;
-
-    @Autowired
-    private ClientService clientService;
-
-    @Autowired
-    private AnexaService anexaService;
+    private final CursaRepo cursaRepo;
+    private final CursaDTOMapper cursaDTOMapper;
+    private final MasinaService masinaService;
+    private final SoferService soferService;
+    private final ClientService clientService;
+    private final AnexaService anexaService;
 
     @Transactional
     public CursaDTO addCursa(CursaDTO cursaDTO) {
@@ -64,20 +53,20 @@ public class CursaService {
         return cursaDTOMapper.apply(savedCursa);
     }
 
-    @Transactional
-    public boolean setCursaListToAnexa(long[] cursaIds, Anexa anexa) {
-        try {
-            for (long id : cursaIds) {
-                Cursa cursa = getCursaEntityById(id);
-                cursa.setAnexa(anexa);
-                cursaRepo.save(cursa);
-            }
-            return true;
-        } catch (Exception e) {
-            log.error("Exception while seting the anexes to the Curse");
-            return false;
-        }
-    }
+//    @Transactional
+//    public boolean setCursaListToAnexa(long[] cursaIds, Anexa anexa) {
+//        try {
+//            for (long id : cursaIds) {
+//                Cursa cursa = getCursaEntityById(id);
+//                cursa.setAnexa(anexa);
+//                cursaRepo.save(cursa);
+//            }
+//            return true;
+//        } catch (Exception e) {
+//            log.error("Exception while seting the anexes to the Curse");
+//            return false;
+//        }
+//    }
 
     public List<CursaDTO> getAllCursa() {
         return cursaRepo.findAll()
@@ -94,39 +83,30 @@ public class CursaService {
     }
 
     public CursaDTO getCursaById(long id) {
-        Optional<Cursa> optionalCursa = cursaRepo.findById(id);
-        if (!optionalCursa.isPresent()) {
-            throw new ResourceNotFoundException("Cursa Not Found with ID: " + id);
-        }
-        return cursaDTOMapper.apply(optionalCursa.get());
+        Cursa cursa = cursaRepo.findById(id).orElseThrow(() ->
+            new ResourceNotFoundException("Cursa Not Found with ID: " + id));
+
+        return cursaDTOMapper.apply(cursa);
     }
 
-    public Cursa getCursaEntityById(long id) {
-        Optional<Cursa> optionalCursa = cursaRepo.findById(id);
-        if (!optionalCursa.isPresent()) {
-            throw new ResourceNotFoundException("Cursa Not Found with ID: " + id);
-        }
-        return optionalCursa.get();
-    }
+//    public Cursa getCursaEntityById(long id) {
+//        return cursaRepo.findById(id).orElseThrow(() ->
+//                new ResourceNotFoundException("Cursa Not Found with ID: " + id));
+//    }
 
     @Transactional
     public void deleteCursa(long id) {
-        Optional<Cursa> optionalCursa = cursaRepo.findById(id);
-        if (!optionalCursa.isPresent()) {
-            throw new ResourceNotFoundException("Cursa Not Found with ID: " + id);
-        }
-        Cursa cursa = optionalCursa.get();
+        Cursa cursa = cursaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Cursa Not Found with ID: " + id));
+
         cursaRepo.delete(cursa);
     }
 
     @Transactional
     public CursaDTO updateCursa(long id, CursaDTO newCursa) {
-        Optional<Cursa> optionalCursa = cursaRepo.findById(id);
-        if (!optionalCursa.isPresent()) {
-            throw new ResourceNotFoundException("Cursa Not Found with ID: " + id);
-        }
+        Cursa cursa = cursaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Cursa Not Found with ID: " + id));
 
-        Cursa cursa = optionalCursa.get();
         cursa.setKm(newCursa.getKm());
         cursa.setDataEfectuare(newCursa.getDataEfectuare());
 

@@ -9,11 +9,9 @@ import com.app.trans.repos.ClientRepo;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -39,38 +37,27 @@ public class ClientService {
     }
 
     public ClientDTO getClientById(long id) {
-        Optional<ClientDTO> optionalClient = clientRepo.findById(id).map(clientDTOMapper);
-        if (!optionalClient.isPresent()) {
-            throw new ResourceNotFoundException("Client Not Found with ID: " + id);
-        }
-        return optionalClient.get();
+        return clientRepo.findById(id).map(clientDTOMapper).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with ID: " + id));
     }
     
     public Client getClientEntityById(long id) {
-    	Optional<Client> optionalClient = clientRepo.findById(id);
-        if (!optionalClient.isPresent()) {
-            throw new ResourceNotFoundException("Client Not Found with ID: " + id);
-        }
-        return optionalClient.get();
+        return clientRepo.findById(id).orElseThrow(() ->
+            new ResourceNotFoundException("Client Not Found with ID: " + id));
 	}
     
     @Transactional
     public void deleteClient(long id) {
-        Optional<Client> optionalClient = clientRepo.findById(id);
-        if (!optionalClient.isPresent()) {
-            throw new ResourceNotFoundException("Client Not Found with ID: " + id);
-        }
-        Client client = optionalClient.get();
-        clientRepo.delete(client);
+        Client optionalClient = clientRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with ID: " + id));
+
+        clientRepo.delete(optionalClient);
     }
     
     @Transactional
     public ClientDTO updateClient(long id, ClientDTO newClient) {
-        Optional<Client> optionalClient = clientRepo.findById(id);
-        if (!optionalClient.isPresent()) {
-            throw new ResourceNotFoundException("Client Not Found with ID: " + id);
-        }
-        Client client = optionalClient.get();
+        Client client = clientRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with ID: " + id));
         client.setNume(newClient.getNume());
         client.setCui(newClient.getCui());
         client.setAdresaFacturare(newClient.getAdresaFacturare());

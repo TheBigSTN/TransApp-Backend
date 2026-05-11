@@ -1,11 +1,7 @@
 package com.app.trans.models;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -18,6 +14,7 @@ import com.app.trans.models.enums.TipLicenta;
 @ToString(exclude = { "masina" })
 @EqualsAndHashCode
 @Table(name = "licenta")
+@AllArgsConstructor
 @NoArgsConstructor
 public class Licenta {
 
@@ -45,18 +42,6 @@ public class Licenta {
 
 	@Column(name = "pret")
 	private Float pret;
-
-	public Licenta(long id, Masina masina, TipLicenta tip, String serie, LocalDate data_inceput, LocalDate data_final,
-			Float pret) {
-		super();
-		this.id = id;
-		this.masina = masina;
-		this.tip = tip;
-		this.serie = serie;
-		this.data_inceput = data_inceput;
-		this.data_final = data_final;
-		this.pret = pret;
-	}
 
 	public Licenta(LicentaDTO licentaDTO) {
 		this.id = licentaDTO.getId();

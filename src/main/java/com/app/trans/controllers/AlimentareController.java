@@ -3,7 +3,6 @@ package com.app.trans.controllers;
 import com.app.trans.dtos.AlimentareDTO;
 import com.app.trans.services.AlimentareService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

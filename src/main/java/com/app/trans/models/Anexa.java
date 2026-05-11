@@ -1,6 +1,5 @@
 package com.app.trans.models;
 
-import com.app.trans.dtos.AnexaDTO;
 import com.app.trans.models.enums.TipAnexa;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -47,16 +46,6 @@ public class Anexa {
     @JsonIgnore
     @OneToMany(mappedBy = "anexa")
     private List<Cursa> curse;
-    
-    public Anexa(AnexaDTO anexaDTO) {
-        this.id = anexaDTO.getId();
-        this.tipAnexa = anexaDTO.getTipAnexa();
-        this.kmTotal = anexaDTO.getKmTotal();
-        this.tarifMediu = anexaDTO.getTarifMediu();
-        this.valoare = anexaDTO.getValoare();
-        this.tva = anexaDTO.getTva();
-    }
-    
 }
 
     

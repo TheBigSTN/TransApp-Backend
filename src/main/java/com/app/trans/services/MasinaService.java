@@ -9,11 +9,9 @@ import com.app.trans.repos.MasinaRepo;
 import jakarta.transaction.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -39,39 +37,30 @@ public class MasinaService {
     }
 
     public MasinaDTO getMasinaById(long id) {
-        Optional<MasinaDTO> optionalMasina = masinaRepo.findById(id).map(masinaDTOMapper);
-        if (!optionalMasina.isPresent()) {
-            throw new ResourceNotFoundException("Masina Not Found with ID: " + id);
-        }
-        return optionalMasina.get();
+        Masina masina = masinaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Masina Not Found with ID: " + id));
+
+        return masinaDTOMapper.apply(masina);
     }
     
     public Masina getMasinaEntityById(long id) {
-    	Optional<Masina> optionalMasina = masinaRepo.findById(id);
-        if (!optionalMasina.isPresent()) {
-            throw new ResourceNotFoundException("Masina Not Found with ID: " + id);
-        }
-        return optionalMasina.get();
+        return masinaRepo.findById(id).orElseThrow(() ->
+            new ResourceNotFoundException("Masina Not Found with ID: " + id));
     }
 
     @Transactional
     public void deleteMasina(long id) {
-        Optional<Masina> optionalMasina = masinaRepo.findById(id);
-        if (!optionalMasina.isPresent()) {
-            throw new ResourceNotFoundException("Masina Not Found with ID: " + id);
-        }
-        Masina masina = optionalMasina.get();
-        masinaRepo.delete(masina);
+        Masina optionalMasina = masinaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Masina Not Found with ID: " + id));
+
+        masinaRepo.delete(optionalMasina);
     }
 
     @Transactional
     public MasinaDTO updateMasina(long id, MasinaDTO newMasina) {
-        Optional<Masina> optionalMasina = masinaRepo.findById(id);
-        if (!optionalMasina.isPresent()) {
-            throw new ResourceNotFoundException("Masina Not Found with ID: " + id);
-        }
-        
-        Masina masina = optionalMasina.get();
+        Masina masina = masinaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Masina Not Found with ID: " + id));
+
         masina.setNumar(newMasina.getNumar());
         masina.setSerie(newMasina.getSerie());
         masina.setCapacitateTransport(newMasina.getCapacitateTransport());

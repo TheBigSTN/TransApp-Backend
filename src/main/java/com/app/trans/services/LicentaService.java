@@ -2,11 +2,9 @@ package com.app.trans.services;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.app.trans.dtos.LicentaDTO;
@@ -48,31 +46,23 @@ public class LicentaService {
     }
 
     public LicentaDTO getLicentaById(long id) {
-        Optional<Licenta> optionalLicenta = licentaRepo.findById(id);
-        if (!optionalLicenta.isPresent()) {
-            throw new ResourceNotFoundException("Licenta Not Found with ID: " + id);
-        }
-        return licentaDTOMapper.apply(optionalLicenta.get());
+        Licenta licenta = licentaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Licenta Not Found with ID: " + id));
+        return licentaDTOMapper.apply(licenta);
     }
 
     @Transactional
     public void deleteLicenta(long id) {
-        Optional<Licenta> optionalLicenta = licentaRepo.findById(id);
-        if (!optionalLicenta.isPresent()) {
-            throw new ResourceNotFoundException("Licenta Not Found with ID: " + id);
-        }
-        Licenta licenta = optionalLicenta.get();
+        Licenta licenta = licentaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Licenta Not Found with ID: " + id));
         licentaRepo.delete(licenta);
     }
 
     @Transactional
     public LicentaDTO updateLicenta(long id, LicentaDTO newLicenta) {
-        Optional<Licenta> optionalLicenta = licentaRepo.findById(id);
-        if (!optionalLicenta.isPresent()) {
-            throw new ResourceNotFoundException("Licenta Not Found with ID: " + id);
-        }
+        Licenta licenta = licentaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Licenta Not Found with ID: " + id));
 
-        Licenta licenta = optionalLicenta.get();
         licenta.setTip(newLicenta.getTip());
         licenta.setSerie(newLicenta.getSerie());
         licenta.setData_inceput(newLicenta.getData_inceput());

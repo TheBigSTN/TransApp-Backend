@@ -58,22 +58,6 @@ public class Sofer {
     @JsonIgnore
     private List<Cursa> curse;
 
-
-
-    public Sofer(long id, String nume, String prenume, LocalDate dataNastere, String cnp, String seriePermis, LocalDate dataEmiterePermis, LocalDate dataExpirare_permis, String address, String telefon, String email) {
-        this.id = id;
-        this.nume = nume;
-        this.prenume = prenume;
-        this.dataNastere = dataNastere;
-        this.cnp = cnp;
-        this.seriePermis = seriePermis;
-        this.dataEmiterePermis = dataEmiterePermis;
-        this.dataExpirarePermis = dataExpirare_permis;
-        this.adresa = address;
-        this.telefon = telefon;
-        this.email = email;
-    }
-
     public Sofer(SoferDTO soferDTO) {
         this.id = soferDTO.getId();
         this.nume = soferDTO.getNume();

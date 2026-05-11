@@ -30,8 +30,4 @@ public class ExpiredTokens {
         this.email = email;
         this.iat = iat;
     }
-
-    // Default constructor
-    public ExpiredTokens() {
-    }
 }

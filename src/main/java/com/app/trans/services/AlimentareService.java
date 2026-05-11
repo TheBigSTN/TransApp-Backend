@@ -9,25 +9,20 @@ import com.app.trans.repos.AlimentareRepo;
 
 import jakarta.transaction.Transactional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AlimentareService {
 
-    @Autowired
-    private AlimentareRepo alimentareRepo;
-
-    @Autowired
-    private AlimentareDTOMapper alimentareDTOMapper;
-
-    @Autowired
-    private MasinaService masinaService;
+    private final AlimentareRepo alimentareRepo;
+    private final AlimentareDTOMapper alimentareDTOMapper;
+    private final MasinaService masinaService;
 
     @Transactional
     public AlimentareDTO addAlimentare(AlimentareDTO alimentareDTO) {
@@ -51,31 +46,24 @@ public class AlimentareService {
     }
 
     public AlimentareDTO getAlimentareById(long id) {
-        Optional<Alimentare> optionalAlimentare = alimentareRepo.findById(id);
-        if (!optionalAlimentare.isPresent()) {
-            throw new ResourceNotFoundException("Alimentare Not Found with ID: " + id);
-        }
-        return alimentareDTOMapper.apply(optionalAlimentare.get());
+        Alimentare alimentare = alimentareRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with ID: " + id));
+        return alimentareDTOMapper.apply(alimentare);
     }
 
     @Transactional
     public void deleteAlimentare(long id) {
-        Optional<Alimentare> optionalAlimentare = alimentareRepo.findById(id);
-        if (!optionalAlimentare.isPresent()) {
-            throw new ResourceNotFoundException("Alimentare Not Found with ID: " + id);
-        }
-        Alimentare alimentare = optionalAlimentare.get();
+        Alimentare alimentare = alimentareRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with ID: " + id));
+
         alimentareRepo.delete(alimentare);
     }
 
     @Transactional
     public AlimentareDTO updateAlimentare(long id, AlimentareDTO newAlimentare) {
-        Optional<Alimentare> optionalAlimentare = alimentareRepo.findById(id);
-        if (!optionalAlimentare.isPresent()) {
-            throw new ResourceNotFoundException("Alimentare Not Found with ID: " + id);
-        }
+        Alimentare alimentare = alimentareRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with ID: " + id));
 
-        Alimentare alimentare = optionalAlimentare.get();
         alimentare.setData_alimentare(newAlimentare.getDataAlimentare());
         alimentare.setLitri(newAlimentare.getLitri());
         alimentare.setPret_unitar(newAlimentare.getPretUnitar());

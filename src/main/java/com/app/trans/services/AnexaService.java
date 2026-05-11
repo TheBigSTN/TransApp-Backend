@@ -10,40 +10,30 @@ import com.app.trans.repos.AnexaRepo;
 import com.app.trans.util.CursaUtil;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.core.io.InputStreamResource;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AnexaService {
 
-	@Autowired
-	private AnexaRepo anexaRepo;
+	private final AnexaRepo anexaRepo;
+	private final AnexaDTOMapper anexaDTOMapper;
+	private final CursaUtil cursaUtil;
 
-	@Autowired
-	private AnexaDTOMapper anexaDTOMapper;
-
-	@Autowired
-	private CursaUtil cursaUtil;
-
-	public boolean test() {
-		log.info("in the test service");
-		return true;
-	}
-
-	@Transactional
-	public Anexa addAnexa() {
-		Anexa anexa = new Anexa(); // Use the apply method
-		anexa.setTipAnexa(TipAnexa.NEVALIDATA);
-		return anexaRepo.save(anexa);
-	}
+//	@Transactional
+//	public Anexa addAnexa() {
+//		Anexa anexa = new Anexa(); // Use the apply method
+//		anexa.setTipAnexa(TipAnexa.NEVALIDATA);
+//		return anexaRepo.save(anexa);
+//	}
 
 	public List<AnexaDTO> getAllAnexa() {
 		return anexaRepo.findAll()
@@ -53,29 +43,20 @@ public class AnexaService {
 	}
 
 	public AnexaDTO getAnexaById(long id) {
-		Optional<Anexa> optionalAnexa = anexaRepo.findById(id);
-		if (!optionalAnexa.isPresent()) {
-			throw new ResourceNotFoundException("Anexa Not Found with ID: " + id);
-		}
-		return anexaDTOMapper.apply(optionalAnexa.get());
+		Anexa anexa = anexaRepo.findById(id).orElseThrow(() ->
+				new ResourceNotFoundException("Anexa Not Found with ID: " + id));
+		return anexaDTOMapper.apply(anexa);
 	}
 
 	public Anexa getAnexaEntityById(long id) {
-		log.info("I am getting the anexa from id", id);
-		Optional<Anexa> optionalAnexa = anexaRepo.findById(id);
-		if (!optionalAnexa.isPresent()) {
-			throw new ResourceNotFoundException("Anexa Not Found with ID: " + id);
-		}
-		return optionalAnexa.get();
+        return anexaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Anexa Not Found with ID: " + id));
 	}
 
 	@Transactional
 	public void deleteAnexa(long id) {
-		Optional<Anexa> optionalAnexa = anexaRepo.findById(id);
-		if (!optionalAnexa.isPresent()) {
-			throw new ResourceNotFoundException("Anexa Not Found with ID: " + id);
-		}
-		Anexa anexa = optionalAnexa.get();
+        Anexa anexa = anexaRepo.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Anexa Not Found with ID: " + id));
 		anexaRepo.delete(anexa);
 	}
 	// nu se poate face update (id nu se poate schimba si VALIDAREA/INVALIDAREA se
@@ -108,19 +89,18 @@ public class AnexaService {
 
 	// check that the second if will not be called after NEVALIDATA update in the
 	// first if, it should not because of the else
-	public Anexa validareAnexa(long id) throws Exception {
+	public Anexa validareAnexa(long id) {
 		log.info("id -ul o merge?");
 		try {
-			log.info("in the service <" + id + ">");
+            log.info("in the service <{}>", id);
 			Anexa anexa = getAnexaEntityById(id);
-			Anexa initialAnexa = anexa;
-			log.info(anexa.toString());
+            log.info(anexa.toString());
 			List<Cursa> cursaList = anexa.getCurse();
 			if (cursaList == null || cursaList.isEmpty()) {
 				log.error("Anexa does not have any Curse, it can not be VALIDATED");
 				return anexa;
 			} else {
-				log.info("in the else <" + id + ">");
+                log.info("in the else <{}>", id);
 				if (anexa.getTipAnexa().equals(TipAnexa.NEVALIDATA)) {
 					try {
 
@@ -133,7 +113,7 @@ public class AnexaService {
 							anexa.setTva(cursaUtil.calculateTva(cursaList));
 							anexa.setValoare(cursaUtil.calculateValoare(cursaList));
 							anexa.setTipAnexa(TipAnexa.VALIDATA);
-							log.info("Anexa before saving " + anexa.toString());
+                            log.info("Anexa before saving {}", anexa);
 							return anexaRepo.save(anexa);
 						}
 
@@ -144,7 +124,7 @@ public class AnexaService {
 
 					try {
 						Anexa emptyAnexa = new Anexa();
-						emptyAnexa.setId(initialAnexa.getId());
+						emptyAnexa.setId(anexa.getId());
 						emptyAnexa.setTipAnexa(TipAnexa.NEVALIDATA);
 						return anexaRepo.save(emptyAnexa);
 					} catch (Exception e) {
@@ -236,7 +216,7 @@ public class AnexaService {
 			return cursaUtil.generatorPdfItext(anexa);
 		} catch (Exception e) {
 			// TODO: handle exception
-			log.error("Anexa generation did not worked" + e);
+            log.error("Anexa generation did not worked{}", String.valueOf(e));
 			return null;
 		}
 	}

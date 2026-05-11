@@ -4,13 +4,11 @@ import com.app.trans.dtos.ActivateAccountRequest;
 import com.app.trans.dtos.CreateAccountRequest;
 import com.app.trans.dtos.PendingAccountDTO;
 import com.app.trans.models.*;
-import com.app.trans.services.PendingAccountService;
 import lombok.RequiredArgsConstructor;
 
 import com.app.trans.security.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

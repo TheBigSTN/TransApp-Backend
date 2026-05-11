@@ -1,6 +1,5 @@
 package com.app.trans.dtos;
 
-import com.app.trans.models.Client;
 import lombok.Data;
 
 @Data
@@ -29,19 +28,5 @@ public class ClientDTO {
         this.contact = contact;
         this.email = email;
         this.telefon = telefon;
-    }
-
-    public ClientDTO(Client client) {
-        this.id = client.getId();
-        this.nume = client.getNume();
-        this.cui = client.getCui();
-        this.adresaFacturare = client.getAdresaFacturare();
-        this.adresaCorespondenta = client.getAdresaCorespondenta();
-        this.cod = client.getCod();
-        this.cont = client.getCont();
-        this.banca = client.getBanca();
-        this.contact = client.getContact();
-        this.email = client.getEmail();
-        this.telefon = client.getTelefon();
     }
 }

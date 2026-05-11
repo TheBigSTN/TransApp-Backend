@@ -3,10 +3,7 @@ package com.app.trans.models;
 import com.app.trans.dtos.AlimentareDTO;
 import com.app.trans.models.enums.TipAlimentare;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,6 +11,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString(exclude = { "masina" })
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode
 @Table(name = "alimentare")
 public class Alimentare {
@@ -39,19 +38,6 @@ public class Alimentare {
     @Column(name = "tip")
     @Enumerated(EnumType.STRING)
     private TipAlimentare tip;
-
-    public Alimentare() {
-    }
-
-    public Alimentare(long id, Masina masina, LocalDate data_alimentare, Float litri, Float pret_unitar,
-            TipAlimentare tip) {
-        this.id = id;
-        this.masina = masina;
-        this.data_alimentare = data_alimentare;
-        this.litri = litri;
-        this.pret_unitar = pret_unitar;
-        this.tip = tip;
-    }
 
     public Alimentare(AlimentareDTO alimentareDTO) {
         this.id = alimentareDTO.getId();

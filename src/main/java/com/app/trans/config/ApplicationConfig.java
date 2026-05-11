@@ -1,5 +1,6 @@
 package com.app.trans.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,7 @@ import com.app.trans.repos.UserRepo;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
@@ -29,6 +31,7 @@ public class ApplicationConfig {
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
+		log.info("AuthentificationProvider este folosit nu sterge");
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 		authProvider.setUserDetailsService(userDetailsService());
 		authProvider.setPasswordEncoder(passwordEncoder());
@@ -37,6 +40,7 @@ public class ApplicationConfig {
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+		log.info("AuthenticationManager este folosit nu sterge");
 		return config.getAuthenticationManager();
 	}
 
@@ -44,25 +48,5 @@ public class ApplicationConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
-	// @Bean
-	// public OpenAPI openAPI() {
-	// return new OpenAPI().addSecurityItem(new SecurityRequirement().
-	// addList("Bearer Authentication"))
-	// .components(new Components().addSecuritySchemes
-	// ("Bearer Authentication", createAPIKeyScheme()))
-	// .info(new Info().title("My REST API")
-	// .description("Some custom description of API.")
-	// .version("1.0").contact(new Contact().name("Sallo Szrajbman")
-	// .email( "www.baeldung.com").url("salloszraj@gmail.com"))
-	// .license(new License().name("License of API")
-	// .url("API license URL")));
-	// }
-	//
-	// private SecurityScheme createAPIKeyScheme() {
-	// return new SecurityScheme().type(SecurityScheme.Type.HTTP)
-	// .bearerFormat("JWT")
-	// .scheme("bearer");
-	// }
 
 }
