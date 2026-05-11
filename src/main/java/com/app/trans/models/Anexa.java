@@ -46,6 +46,10 @@ public class Anexa {
     @JsonIgnore
     @OneToMany(mappedBy = "anexa")
     private List<Cursa> curse;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 }
 
     

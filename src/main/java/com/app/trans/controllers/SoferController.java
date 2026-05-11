@@ -1,56 +1,59 @@
 package com.app.trans.controllers;
 
-//import javax.validation.Valid;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.app.trans.dtos.SoferDTO;
 import com.app.trans.services.SoferService;
+import com.app.trans.util.CurrentCompanyId;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/sofer")
+@RequiredArgsConstructor
 public class SoferController {
 
-    @Autowired
-    SoferService soferService;
+    private final SoferService soferService;
 
     @PostMapping("/add")
-    public ResponseEntity<SoferDTO> addSofer(@RequestBody SoferDTO soferDTO) {
-        SoferDTO newSoferDTO = soferService.addSofer(soferDTO);
+    public ResponseEntity<SoferDTO> addSofer(
+            @Valid @RequestBody SoferDTO soferDTO,
+            @CurrentCompanyId UUID companyId) {
+        SoferDTO newSoferDTO = soferService.addSofer(soferDTO, companyId);
         return ResponseEntity.ok(newSoferDTO);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteSoferById(@PathVariable Long id) {
-        soferService.deleteSoferById(id);
+    public ResponseEntity<Void> deleteSoferById(
+            @PathVariable Long id,
+            @CurrentCompanyId UUID companyId) {
+        soferService.deleteSoferById(id, companyId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<SoferDTO> getSoferById(@PathVariable Long id) {
-        SoferDTO soferDTO = soferService.getSoferById(id);
+    public ResponseEntity<SoferDTO> getSoferById(
+            @PathVariable Long id,
+            @CurrentCompanyId UUID companyId) {
+        SoferDTO soferDTO = soferService.getSoferById(id, companyId);
         return ResponseEntity.ok(soferDTO);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<SoferDTO>> getAllSoferDTO() {
-        List<SoferDTO> soferDTOList = soferService.getAllSoferDTO();
+    public ResponseEntity<List<SoferDTO>> getAllSofer(@CurrentCompanyId UUID companyId) {
+        List<SoferDTO> soferDTOList = soferService.getAllSofer(companyId);
         return ResponseEntity.ok(soferDTOList);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<SoferDTO> updateSoferById(@PathVariable Long id, @RequestBody SoferDTO soferDTO) {
-        soferService.updateSoferById(id, soferDTO);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<SoferDTO> updateSoferById(
+            @PathVariable Long id,
+            @Valid @RequestBody SoferDTO soferDTO,
+            @CurrentCompanyId UUID companyId) {
+        SoferDTO updatedSofer = soferService.updateSoferById(id, soferDTO, companyId);
+        return ResponseEntity.ok(updatedSofer);
     }
 }

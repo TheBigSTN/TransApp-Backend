@@ -1,4 +1,4 @@
-package com.app.trans.models;
+package com.app.trans.models.enums;
 
 public enum Role {
 	USER,

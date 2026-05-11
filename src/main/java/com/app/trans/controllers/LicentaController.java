@@ -2,6 +2,7 @@ package com.app.trans.controllers;
 
 import com.app.trans.dtos.LicentaDTO;
 import com.app.trans.services.LicentaService;
+import com.app.trans.util.CurrentCompanyId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/licenta")
@@ -19,38 +21,49 @@ public class LicentaController {
     private final LicentaService licentaService;
 
     @PostMapping("/add")
-    public ResponseEntity<LicentaDTO> addLicenta(@Valid @RequestBody LicentaDTO licentaDTO) {
-        LicentaDTO newLicenta = licentaService.addLicenta(licentaDTO);
+    public ResponseEntity<LicentaDTO> addLicenta(
+            @Valid @RequestBody LicentaDTO licentaDTO,
+            @CurrentCompanyId UUID companyId) {
+        LicentaDTO newLicenta = licentaService.addLicenta(licentaDTO, companyId);
         return ResponseEntity.ok(newLicenta);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteLicentaById(@PathVariable long id) {
-        licentaService.deleteLicenta(id);
+    public ResponseEntity<Void> deleteLicentaById(
+            @PathVariable long id,
+            @CurrentCompanyId UUID companyId) {
+        licentaService.deleteLicenta(id, companyId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<LicentaDTO> getLicentaById(@PathVariable long id) {
-        LicentaDTO licentaDTO = licentaService.getLicentaById(id);
+    public ResponseEntity<LicentaDTO> getLicentaById(
+            @PathVariable long id,
+            @CurrentCompanyId UUID companyId) {
+        LicentaDTO licentaDTO = licentaService.getLicentaById(id, companyId);
         return ResponseEntity.ok(licentaDTO);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<LicentaDTO>> getAllLicenta() {
-        List<LicentaDTO> licentaDTOList = licentaService.getAllLicenta();
+    public ResponseEntity<List<LicentaDTO>> getAllLicenta(@CurrentCompanyId UUID companyId) {
+        List<LicentaDTO> licentaDTOList = licentaService.getAllLicenta(companyId);
         return ResponseEntity.ok(licentaDTOList);
     }
 
     @GetMapping("/perioada")
-    public List<LicentaDTO> getLicentaPerioada(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
-        return licentaService.getLicentaPerioada(startDate, endDate);
+    public List<LicentaDTO> getLicentaPerioada(
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate,
+            @CurrentCompanyId UUID companyId) {
+        return licentaService.getLicentaPerioada(startDate, endDate, companyId);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<LicentaDTO> updateLicentaById(@PathVariable long id,
-            @Valid @RequestBody LicentaDTO licentaDTO) {
-        LicentaDTO updatedLicenta = licentaService.updateLicenta(id, licentaDTO);
+    public ResponseEntity<LicentaDTO> updateLicentaById(
+            @PathVariable long id,
+            @Valid @RequestBody LicentaDTO licentaDTO,
+            @CurrentCompanyId UUID companyId) {
+        LicentaDTO updatedLicenta = licentaService.updateLicenta(id, licentaDTO, companyId);
         return ResponseEntity.ok(updatedLicenta);
     }
 }

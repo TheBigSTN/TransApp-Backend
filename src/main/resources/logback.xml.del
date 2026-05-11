@@ -1,5 +1,4 @@
 <configuration>
-
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>trans-log-file.log</file> <!-- Specify the file name here -->
         <encoder>

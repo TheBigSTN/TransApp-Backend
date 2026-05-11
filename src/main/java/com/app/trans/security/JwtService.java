@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
 
-import com.app.trans.models.Role;
+import com.app.trans.models.enums.Role;
 import com.app.trans.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

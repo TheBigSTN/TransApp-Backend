@@ -1,6 +1,7 @@
 package com.app.trans.models;
 
 import com.app.trans.dtos.PendingAccountDTO;
+import com.app.trans.models.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

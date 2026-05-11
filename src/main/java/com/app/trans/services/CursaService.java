@@ -2,8 +2,10 @@ package com.app.trans.services;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.app.trans.repos.CompanyRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,16 +34,23 @@ public class CursaService {
     private final SoferService soferService;
     private final ClientService clientService;
     private final AnexaService anexaService;
+    private final CompanyRepo companyRepo;
 
     @Transactional
-    public CursaDTO addCursa(CursaDTO cursaDTO) {
-        Cursa cursa = new Cursa(cursaDTO);
-        cursa.setMasina(masinaService.getMasinaEntityById(cursaDTO.getIdMasina()));
-        cursa.setClient(clientService.getClientEntityById(cursaDTO.getIdClient()));
-        cursa.setSofer(soferService.getSoferEntityById(cursaDTO.getIdSofer()));
+    public CursaDTO addCursa(CursaDTO cursaDTO, UUID companyId) {
+        Cursa cursa = Cursa.builder()
+                .km(cursaDTO.getKm())
+                .dataEfectuare(cursaDTO.getDataEfectuare())
+                .livrare(cursaDTO.getLivrare())
+                .tarif(cursaDTO.getTarif())
+                .masina(masinaService.getMasinaEntityById(cursaDTO.getIdMasina(), companyId))
+                .client(clientService.getClientEntityById(cursaDTO.getIdClient()))
+                .sofer(soferService.getSoferEntityById(cursaDTO.getIdSofer(), companyId))
+                .company(companyRepo.getReferenceById(companyId))
+                .build();
 
         if (cursaDTO.getIdAnexa() != null) {
-            Anexa anexa = anexaService.getAnexaEntityById(cursaDTO.getIdAnexa());
+            Anexa anexa = anexaService.getAnexaEntityByIdAndCompanyId(cursaDTO.getIdAnexa(), companyId);
             if (anexa.getTipAnexa().equals(TipAnexa.NEVALIDATA)) {
                 cursa.setAnexa(anexa);
             } else {
@@ -68,68 +77,69 @@ public class CursaService {
 //        }
 //    }
 
-    public List<CursaDTO> getAllCursa() {
-        return cursaRepo.findAll()
+    public List<CursaDTO> getAllCursa(UUID companyId) {
+        return cursaRepo.findAllByCompanyId(companyId)
                 .stream()
                 .map(cursaDTOMapper)
                 .collect(Collectors.toList());
     }
 
-    public List<CursaDTO> getCursaPerioada(LocalDate startDate, LocalDate endDate) {
-        return cursaRepo.findAllByPeriod(startDate, endDate)
+    public List<CursaDTO> getCursaPerioada(LocalDate startDate, LocalDate endDate, UUID companyId) {
+        return cursaRepo.findAllByPeriodAndCompanyId(startDate, endDate, companyId)
                 .stream()
                 .map(cursaDTOMapper)
                 .collect(Collectors.toList());
     }
 
-    public CursaDTO getCursaById(long id) {
-        Cursa cursa = cursaRepo.findById(id).orElseThrow(() ->
+    public CursaDTO getCursaById(long id, UUID companyId) {
+        Cursa cursa = cursaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
             new ResourceNotFoundException("Cursa Not Found with ID: " + id));
 
         return cursaDTOMapper.apply(cursa);
     }
 
-//    public Cursa getCursaEntityById(long id) {
-//        return cursaRepo.findById(id).orElseThrow(() ->
-//                new ResourceNotFoundException("Cursa Not Found with ID: " + id));
-//    }
-
     @Transactional
-    public void deleteCursa(long id) {
-        Cursa cursa = cursaRepo.findById(id).orElseThrow(() ->
+    public void deleteCursa(long id, UUID companyId) {
+        Cursa cursa = cursaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
                 new ResourceNotFoundException("Cursa Not Found with ID: " + id));
 
         cursaRepo.delete(cursa);
     }
 
     @Transactional
-    public CursaDTO updateCursa(long id, CursaDTO newCursa) {
-        Cursa cursa = cursaRepo.findById(id).orElseThrow(() ->
+    public CursaDTO updateCursa(long id, CursaDTO newCursa, UUID companyId) {
+        Cursa cursa = cursaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
                 new ResourceNotFoundException("Cursa Not Found with ID: " + id));
 
         cursa.setKm(newCursa.getKm());
         cursa.setDataEfectuare(newCursa.getDataEfectuare());
+        cursa.setLivrare(newCursa.getLivrare());
+        cursa.setTarif(newCursa.getTarif());
 
         if (cursa.getMasina().getId() != newCursa.getIdMasina()) {
-            Masina newMasina = masinaService.getMasinaEntityById(newCursa.getIdMasina());
+            Masina newMasina = masinaService.getMasinaEntityById(newCursa.getIdMasina(), companyId);
             cursa.setMasina(newMasina);
         }
         if (cursa.getSofer().getId() != newCursa.getIdSofer()) {
-            Sofer newSofer = soferService.getSoferEntityById(newCursa.getIdSofer());
+            Sofer newSofer = soferService.getSoferEntityById(newCursa.getIdSofer(), companyId);
             cursa.setSofer(newSofer);
         }
         if (cursa.getClient().getId() != newCursa.getIdClient()) {
             Client newClient = clientService.getClientEntityById(newCursa.getIdClient());
             cursa.setClient(newClient);
         }
-        if (cursa.getAnexa().getId() != newCursa.getIdAnexa()) {
-            Anexa newAnexa = anexaService.getAnexaEntityById(newCursa.getIdAnexa());
+        
+        if (newCursa.getIdAnexa() != null && (cursa.getAnexa() == null || cursa.getAnexa().getId() != newCursa.getIdAnexa())) {
+            Anexa newAnexa = anexaService.getAnexaEntityByIdAndCompanyId(newCursa.getIdAnexa(), companyId);
             if (newAnexa.getTipAnexa().equals(TipAnexa.NEVALIDATA)) {
                 cursa.setAnexa(newAnexa);
             } else {
                 log.warn("Anexa este deja VALIDATA, cursa nu poate fi asociata ei");
             }
+        } else if (newCursa.getIdAnexa() == null) {
+            cursa.setAnexa(null);
         }
+
         Cursa savedCursa = cursaRepo.save(cursa);
         return cursaDTOMapper.apply(savedCursa);
     }

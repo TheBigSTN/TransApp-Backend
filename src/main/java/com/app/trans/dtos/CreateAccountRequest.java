@@ -1,6 +1,6 @@
 package com.app.trans.dtos;
 
-import com.app.trans.models.Role;
+import com.app.trans.models.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

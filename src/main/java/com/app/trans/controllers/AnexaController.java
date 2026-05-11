@@ -1,7 +1,9 @@
 package com.app.trans.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
+import com.app.trans.util.CurrentCompanyId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
@@ -29,10 +31,13 @@ public class AnexaController {
     private final AnexaDTOMapper anexaDTOMapper;
 
     @GetMapping("/validate/{id}")
-    public ResponseEntity<AnexaDTO> validateAnexa(@PathVariable long id) {
+    public ResponseEntity<AnexaDTO> validateAnexa(
+            @PathVariable long id,
+            @CurrentCompanyId UUID companyId
+    ) {
         try {
             log.info("in the controller <{}>", id);
-            Anexa anexa = anexaService.validareAnexa(id);
+            Anexa anexa = anexaService.validareAnexa(id, companyId);
             return ResponseEntity.ok(anexaDTOMapper.apply(anexa));
         } catch (Exception e) {
             log.warn("Validating Anexa failed");
@@ -42,18 +47,22 @@ public class AnexaController {
     }
 
     @GetMapping("/view/{id}")
-    public ResponseEntity<AnexaDTO> getAnexaById(@PathVariable long id) {
+    public ResponseEntity<AnexaDTO> getAnexaById(
+            @PathVariable long id,
+            @CurrentCompanyId UUID companyId) {
         log.error("sunt in view anexa");
-        AnexaDTO anexaDTO = anexaService.getAnexaById(id);
+        AnexaDTO anexaDTO = anexaService.getAnexaByIdAndCompanyId(id, companyId);
         return ResponseEntity.ok(anexaDTO);
     }
 
     @GetMapping("/generate/{id}")
-    public ResponseEntity<InputStreamResource> generateAnexa(@PathVariable long id) {
+    public ResponseEntity<InputStreamResource> generateAnexa(
+            @PathVariable long id,
+            @CurrentCompanyId UUID companyId) {
         log.info("I am here in generate anexa and id= {}", id);
         // log.info("pdf-ul dupa generare" + pdf.getInputStream().toString() );
         // String pdfContent = readPdfContent(pdf.getInputStream());
-        return ResponseEntity.ok(anexaService.generateAnexa(id));
+        return ResponseEntity.ok(anexaService.generateAnexa(id, companyId));
     }
 
     // private String readPdfContent(InputStream inputStream) throws IOException {
@@ -64,14 +73,18 @@ public class AnexaController {
     // }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteAnexaById(@PathVariable long id) {
-        anexaService.deleteAnexa(id);
+    public ResponseEntity<Void> deleteAnexaById(
+            @PathVariable long id,
+            @CurrentCompanyId UUID companyId) {
+        anexaService.deleteAnexa(id, companyId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<AnexaDTO>> getAllAnexa() {
-        List<AnexaDTO> anexaDTOList = anexaService.getAllAnexa();
+    public ResponseEntity<List<AnexaDTO>> getAllAnexa(
+            @CurrentCompanyId UUID companyId
+    ) {
+        List<AnexaDTO> anexaDTOList = anexaService.getAllAnexa(companyId);
         return ResponseEntity.ok(anexaDTOList);
     }
 }

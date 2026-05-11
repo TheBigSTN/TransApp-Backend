@@ -1,6 +1,5 @@
 package com.app.trans.models;
 
-import com.app.trans.dtos.AlimentareDTO;
 import com.app.trans.models.enums.TipAlimentare;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,6 +9,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
+@Builder
 @ToString(exclude = { "masina" })
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,13 +39,7 @@ public class Alimentare {
     @Enumerated(EnumType.STRING)
     private TipAlimentare tip;
 
-    public Alimentare(AlimentareDTO alimentareDTO) {
-        this.id = alimentareDTO.getId();
-        this.masina.setId(alimentareDTO.getMasinaId());
-        this.data_alimentare = alimentareDTO.getDataAlimentare();
-        this.litri = alimentareDTO.getLitri();
-        this.pret_unitar = alimentareDTO.getPretUnitar();
-        this.tip = alimentareDTO.getTip();
-    }
-
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 }

@@ -5,15 +5,12 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-import com.app.trans.dtos.LicentaDTO;
 import com.app.trans.models.enums.TipLicenta;
 
 @Entity
-@Getter
-@Setter
-@ToString(exclude = { "masina" })
-@EqualsAndHashCode
+@Data
 @Table(name = "licenta")
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Licenta {
@@ -24,6 +21,7 @@ public class Licenta {
 	private long id;
 
 	@ManyToOne
+	@ToString.Exclude()
 	@JoinColumn(name = "id_masina")
 	private Masina masina;
 
@@ -43,14 +41,8 @@ public class Licenta {
 	@Column(name = "pret")
 	private Float pret;
 
-	public Licenta(LicentaDTO licentaDTO) {
-		this.id = licentaDTO.getId();
-		this.masina.setId(licentaDTO.getMasinaId());
-		this.tip = licentaDTO.getTip();
-		this.serie = licentaDTO.getSerie();
-		this.data_inceput = licentaDTO.getData_inceput();
-		this.data_final = licentaDTO.getData_final();
-		this.pret = licentaDTO.getPret();
-	}
-
+	@ManyToOne
+	@ToString.Exclude()
+	@JoinColumn(name = "company_id", nullable = false)
+	private Company company;
 }

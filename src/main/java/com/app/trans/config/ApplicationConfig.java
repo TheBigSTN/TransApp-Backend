@@ -31,7 +31,6 @@ public class ApplicationConfig {
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
-		log.info("AuthentificationProvider este folosit nu sterge");
 		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 		authProvider.setUserDetailsService(userDetailsService());
 		authProvider.setPasswordEncoder(passwordEncoder());
@@ -40,7 +39,6 @@ public class ApplicationConfig {
 
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-		log.info("AuthenticationManager este folosit nu sterge");
 		return config.getAuthenticationManager();
 	}
 

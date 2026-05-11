@@ -1,10 +1,7 @@
 package com.app.trans.models;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "expired_tokens")
@@ -12,6 +9,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
+@NoArgsConstructor
 public class ExpiredTokens {
 
     @Id

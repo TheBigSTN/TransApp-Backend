@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.app.trans.dtos.ActivateAccountRequest;
 import com.app.trans.dtos.CreateAccountRequest;
 import com.app.trans.models.*;
+import com.app.trans.models.enums.Role;
 import com.app.trans.services.CompanyDataService;
 import com.app.trans.services.PendingAccountService;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,25 +1,20 @@
 package com.app.trans.models;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
-import com.app.trans.dtos.MasinaDTO;
 import com.app.trans.models.enums.StatusMasina;
 import com.app.trans.models.enums.TipMasina;
 
-//import javax.validation.constraints.NotBlank;
-
 @Entity
 @Table(name = "masina")
-@Setter
-@Getter
-@ToString(exclude = { "curse" })
-@EqualsAndHashCode
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Masina {
 
     @Id
@@ -47,42 +42,24 @@ public class Masina {
     @Enumerated(EnumType.STRING)
     private StatusMasina status;
 
+    @JsonIgnore
+    @ToString.Exclude()
     @OneToMany(mappedBy = "masina")
     private List<Cursa> curse;
 
+    @JsonIgnore
+    @ToString.Exclude()
     @OneToMany(mappedBy = "masina")
     private List<Alimentare> alimentari;
 
+    @JsonIgnore
+    @ToString.Exclude()
     @OneToMany(mappedBy = "masina")
     private List<Licenta> licente;
 
-    public Masina() {
-    }
+    @ManyToOne
+    @ToString.Exclude()
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 
-    public Masina(
-            long id,
-            String numar,
-            String serie,
-            Integer capacitateTransport,
-            Integer capacitateCombustibil,
-            TipMasina tipauto,
-            StatusMasina status) {
-        this.id = id;
-        this.numar = numar;
-        this.serie = serie;
-        this.tipauto = tipauto;
-        this.capacitateTransport = capacitateTransport;
-        this.capacitateCombustibil = capacitateCombustibil;
-        this.status = status;
-    }
-
-    public Masina(MasinaDTO masina) {
-        this.id = masina.getId();
-        this.numar = masina.getNumar();
-        this.serie = masina.getSerie();
-        this.capacitateTransport = masina.getCapacitateTransport();
-        this.capacitateCombustibil = masina.getCapacitateCombustibil();
-        this.tipauto = masina.getTipauto();
-        this.status = masina.getStatus();
-    }
 }

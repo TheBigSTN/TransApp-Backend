@@ -1,22 +1,18 @@
 package com.app.trans.models;
 
-import com.app.trans.dtos.SoferDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name="sofer")
-@Setter
-@Getter
-@ToString  (exclude = {"curse"})
-@EqualsAndHashCode
+@Table(name = "sofer")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Sofer {
 
     @Id
@@ -39,7 +35,7 @@ public class Sofer {
     @Column(name = "serie_permis")
     private String seriePermis;
 
-    @Column(name = "data_emitere_permis ")
+    @Column(name = "data_emitere_permis")
     private LocalDate dataEmiterePermis;
 
     @Column(name = "data_expirare_permis")
@@ -56,22 +52,11 @@ public class Sofer {
 
     @OneToMany(mappedBy = "sofer", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
+    @ToString.Exclude()
     private List<Cursa> curse;
 
-    public Sofer(SoferDTO soferDTO) {
-        this.id = soferDTO.getId();
-        this.nume = soferDTO.getNume();
-        this.prenume = soferDTO.getPrenume();
-        this.dataNastere = soferDTO.getDataNastere();
-        this.cnp = soferDTO.getCnp();
-        this.seriePermis = soferDTO.getSeriePermis();
-        this.dataEmiterePermis = soferDTO.getDataEmiterePermis();
-        this.dataExpirarePermis = soferDTO.getDataExpirarePermis();
-        this.adresa = soferDTO.getAdresa();
-        this.telefon = soferDTO.getTelefon();
-        this.email = soferDTO.getEmail();
-    }
-    
-    public Sofer() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    @ToString.Exclude()
+    private Company company;
 }

@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.core.io.InputStreamResource;
 
@@ -35,27 +36,27 @@ public class AnexaService {
 //		return anexaRepo.save(anexa);
 //	}
 
-	public List<AnexaDTO> getAllAnexa() {
-		return anexaRepo.findAll()
+	public List<AnexaDTO> getAllAnexa(UUID companyId) {
+		return anexaRepo.findAllByCompanyId(companyId)
 				.stream()
 				.map(anexaDTOMapper)
 				.collect(Collectors.toList());
 	}
 
-	public AnexaDTO getAnexaById(long id) {
-		Anexa anexa = anexaRepo.findById(id).orElseThrow(() ->
+	public AnexaDTO getAnexaByIdAndCompanyId(long id, UUID companyId) {
+		Anexa anexa = anexaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
 				new ResourceNotFoundException("Anexa Not Found with ID: " + id));
 		return anexaDTOMapper.apply(anexa);
 	}
 
-	public Anexa getAnexaEntityById(long id) {
-        return anexaRepo.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Anexa Not Found with ID: " + id));
+	public Anexa getAnexaEntityByIdAndCompanyId(long id, UUID companyId) {
+		return anexaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
+				new ResourceNotFoundException("Anexa Not Found with ID: " + id));
 	}
 
 	@Transactional
-	public void deleteAnexa(long id) {
-        Anexa anexa = anexaRepo.findById(id).orElseThrow(() ->
+	public void deleteAnexa(long id, UUID companyId) {
+        Anexa anexa = anexaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
                 new ResourceNotFoundException("Anexa Not Found with ID: " + id));
 		anexaRepo.delete(anexa);
 	}
@@ -89,11 +90,11 @@ public class AnexaService {
 
 	// check that the second if will not be called after NEVALIDATA update in the
 	// first if, it should not because of the else
-	public Anexa validareAnexa(long id) {
+	public Anexa validareAnexa(long id, UUID companyId) {
 		log.info("id -ul o merge?");
 		try {
             log.info("in the service <{}>", id);
-			Anexa anexa = getAnexaEntityById(id);
+			Anexa anexa = getAnexaEntityByIdAndCompanyId(id, companyId);
             log.info(anexa.toString());
 			List<Cursa> cursaList = anexa.getCurse();
 			if (cursaList == null || cursaList.isEmpty()) {
@@ -210,8 +211,8 @@ public class AnexaService {
 	// }
 	// }
 
-	public InputStreamResource generateAnexa(long id) {
-		Anexa anexa = getAnexaEntityById(id);
+	public InputStreamResource generateAnexa(long id, UUID companyId) {
+		Anexa anexa = getAnexaEntityByIdAndCompanyId(id, companyId);
 		try {
 			return cursaUtil.generatorPdfItext(anexa);
 		} catch (Exception e) {
