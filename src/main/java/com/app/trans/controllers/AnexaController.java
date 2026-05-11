@@ -6,13 +6,11 @@ import java.util.UUID;
 import com.app.trans.util.CurrentCompanyId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.app.trans.dtos.AnexaDTO;
 import com.app.trans.mappers.AnexaDTOMapper;
@@ -62,7 +60,10 @@ public class AnexaController {
         log.info("I am here in generate anexa and id= {}", id);
         // log.info("pdf-ul dupa generare" + pdf.getInputStream().toString() );
         // String pdfContent = readPdfContent(pdf.getInputStream());
-        return ResponseEntity.ok(anexaService.generateAnexa(id, companyId));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=anexa.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(anexaService.generateAnexa(id, companyId));
     }
 
     // private String readPdfContent(InputStream inputStream) throws IOException {
@@ -86,5 +87,13 @@ public class AnexaController {
     ) {
         List<AnexaDTO> anexaDTOList = anexaService.getAllAnexa(companyId);
         return ResponseEntity.ok(anexaDTOList);
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<AnexaDTO> addAnexa(
+            @RequestBody List<Long> cursaIds,
+            @CurrentCompanyId UUID companyId) {
+        AnexaDTO newAnexa = anexaService.addAnexa(cursaIds, companyId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newAnexa);
     }
 }

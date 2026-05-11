@@ -4,20 +4,14 @@ import com.app.trans.models.enums.TipAnexa;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import java.util.List;
-import lombok.ToString;
 
 @Entity
 @Table(name = "anexa")
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Anexa {

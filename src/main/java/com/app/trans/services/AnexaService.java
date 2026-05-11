@@ -7,6 +7,8 @@ import com.app.trans.models.Anexa;
 import com.app.trans.models.Cursa;
 import com.app.trans.models.enums.TipAnexa;
 import com.app.trans.repos.AnexaRepo;
+import com.app.trans.repos.CompanyRepo;
+import com.app.trans.repos.CursaRepo;
 import com.app.trans.util.CursaUtil;
 
 import jakarta.transaction.Transactional;
@@ -26,15 +28,36 @@ import org.springframework.core.io.InputStreamResource;
 public class AnexaService {
 
 	private final AnexaRepo anexaRepo;
+	private final CursaRepo cursaRepo;
 	private final AnexaDTOMapper anexaDTOMapper;
 	private final CursaUtil cursaUtil;
+	private final CompanyRepo companyRepo;
 
-//	@Transactional
-//	public Anexa addAnexa() {
-//		Anexa anexa = new Anexa(); // Use the apply method
-//		anexa.setTipAnexa(TipAnexa.NEVALIDATA);
-//		return anexaRepo.save(anexa);
-//	}
+	@Transactional
+	public AnexaDTO addAnexa(List<Long> cursaIds, UUID companyId) {
+		Anexa anexa = Anexa.builder()
+				.tipAnexa(TipAnexa.NEVALIDATA)
+				.company(companyRepo.getReferenceById(companyId))
+				.build();
+
+		Anexa savedAnexa = anexaRepo.save(anexa);
+
+		List<Cursa> curse = cursaIds.stream()
+				.map(id -> cursaRepo.findByIdAndCompanyId(id, companyId)
+						.orElseThrow(() -> new ResourceNotFoundException("Cursa Not Found with ID: " + id)))
+				.peek(cursa -> {
+					if (cursa.getAnexa() != null) {
+						throw new RuntimeException("Cursa with ID " + cursa.getId() + " is already assigned to Anexa " + cursa.getAnexa().getId());
+					}
+					cursa.setAnexa(savedAnexa);
+				})
+				.collect(Collectors.toList());
+
+		cursaRepo.saveAll(curse);
+		savedAnexa.setCurse(curse);
+
+		return anexaDTOMapper.apply(savedAnexa);
+	}
 
 	public List<AnexaDTO> getAllAnexa(UUID companyId) {
 		return anexaRepo.findAllByCompanyId(companyId)
@@ -56,170 +79,58 @@ public class AnexaService {
 
 	@Transactional
 	public void deleteAnexa(long id, UUID companyId) {
-        Anexa anexa = anexaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
-                new ResourceNotFoundException("Anexa Not Found with ID: " + id));
+		Anexa anexa = anexaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->
+				new ResourceNotFoundException("Anexa Not Found with ID: " + id));
+		
+		if (anexa.getCurse() != null) {
+			anexa.getCurse().forEach(cursa -> cursa.setAnexa(null));
+			cursaRepo.saveAll(anexa.getCurse());
+		}
+		
 		anexaRepo.delete(anexa);
 	}
-	// nu se poate face update (id nu se poate schimba si VALIDAREA/INVALIDAREA se
-	// face prin alta functie
-	// iar celelelalte valori sunt modificate automat pe baza curselor c
-	// @Transactional
-	// public AnexaDTO updateAnexa(long id, AnexaDTO newAnexa) {
-	// Optional<Anexa> optionalAnexa = anexaRepo.findById(id);
-	// if (!optionalAnexa.isPresent()) {
-	// throw new ResourceNotFoundException("Anexa Not Found with ID: " + id);
-	// }
-	//
-	// Anexa anexa = optionalAnexa.get();
-	// if(anexa.getTipAnexa().equals(TipAnexa.VALIDATA)) {
-	// log.console("Anexa VALIDATA ");
-	// }
-	// // Update properties of the Anexa entity with the values from newAnexa DTO
-	// // Similar to what you did in updateCursa method in CursaService
-	//
-	// Anexa savedAnexa = anexaRepo.save(anexa);
-	// return anexaDTOMapper.apply(savedAnexa);
-	// }
 
-	// public Anexa validareAnexa(long id) {
-	// log.error("in the service");
-	// Anexa anexa = new Anexa();
-	// anexa.setId(1);
-	// return anexa;
-	// }
-
-	// check that the second if will not be called after NEVALIDATA update in the
-	// first if, it should not because of the else
+	@Transactional
 	public Anexa validareAnexa(long id, UUID companyId) {
-		log.info("id -ul o merge?");
-		try {
-            log.info("in the service <{}>", id);
-			Anexa anexa = getAnexaEntityByIdAndCompanyId(id, companyId);
-            log.info(anexa.toString());
-			List<Cursa> cursaList = anexa.getCurse();
-			if (cursaList == null || cursaList.isEmpty()) {
-				log.error("Anexa does not have any Curse, it can not be VALIDATED");
-				return anexa;
-			} else {
-                log.info("in the else <{}>", id);
-				if (anexa.getTipAnexa().equals(TipAnexa.NEVALIDATA)) {
-					try {
+		Anexa anexa = getAnexaEntityByIdAndCompanyId(id, companyId);
+		List<Cursa> cursaList = anexa.getCurse();
 
-						if (cursaUtil.checkSameClient(cursaList) == null) {
-							log.error("Anexa nu a putut fi validata, cursele nu apartin aceluiasi client!");
-							throw new Exception("Anexa nu a putut fi validata, cursele nu apartin aceluiasi client!");
-						} else {
-							anexa.setKmTotal(cursaUtil.calculateKmTotal(cursaList));
-							anexa.setTarifMediu(cursaUtil.calculateTarifMediu(cursaList));
-							anexa.setTva(cursaUtil.calculateTva(cursaList));
-							anexa.setValoare(cursaUtil.calculateValoare(cursaList));
-							anexa.setTipAnexa(TipAnexa.VALIDATA);
-                            log.info("Anexa before saving {}", anexa);
-							return anexaRepo.save(anexa);
-						}
-
-					} catch (Exception e) {
-						throw new Exception("Something when wrong while VALIDATING the anexa");
-					}
-				} else if (anexa.getTipAnexa().equals(TipAnexa.VALIDATA)) {
-
-					try {
-						Anexa emptyAnexa = new Anexa();
-						emptyAnexa.setId(anexa.getId());
-						emptyAnexa.setTipAnexa(TipAnexa.NEVALIDATA);
-						return anexaRepo.save(emptyAnexa);
-					} catch (Exception e) {
-						throw new Exception("Something when wrong while INVALIDATING the anexa");
-					}
-				}
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-			log.info("nu mergeeeeee");
+		if (cursaList == null || cursaList.isEmpty()) {
+			log.error("Anexa {} does not have any Curse, it cannot be VALIDATED", id);
+			throw new RuntimeException("Anexa does not have any Curse, it cannot be VALIDATED");
 		}
-		Anexa anexa = new Anexa();
-		anexa.setId(0);
-		return anexa; // initialAnexa;
-	}
 
-	// @Transactional
-	// public Anexa validareAnexa(long id) {
-	// try {
-	// log.info("Validating Anexa with ID: {}", id);
-	//
-	// // Retrieve the Anexa entity by ID
-	// Anexa anexa = getAnexaEntityById(id);
-	//
-	// // Check if the retrieved Anexa is null
-	// if (anexa == null) {
-	// log.error("Anexa not found with ID: {}", id);
-	// throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Anexa not found with
-	// ID: " + id);
-	// }
-	//
-	// // Get the list of curse from the Anexa entity
-	// List<Cursa> cursaList = anexa.getCurse();
-	//
-	// // Check if the curse list is null or empty
-	// if (cursaList == null || cursaList.isEmpty()) {
-	// log.error("Anexa with ID {} does not have any Curse, it cannot be VALIDATED",
-	// id);
-	// throw new ValidationException("Anexa does not have any Curse, it cannot be
-	// VALIDATED");
-	// }
-	//
-	// // Check the TipAnexa of the Anexa entity
-	// if (anexa.getTipAnexa().equals(TipAnexa.NEVALIDATA)) {
-	// // Perform validation logic
-	// // For example:
-	// // anexa.setKmTotal(cursaUtil.calculateKmTotal(cursaList));
-	// // anexa.setTarifMediu(cursaUtil.calculateTarifMediu(cursaList));
-	// // ...
-	//
-	// // Set TipAnexa to VALIDATA
-	// anexa.setTipAnexa(TipAnexa.VALIDATA);
-	//
-	// // Save the updated Anexa entity
-	// return anexaRepo.save(anexa);
-	// } else if (anexa.getTipAnexa().equals(TipAnexa.VALIDATA)) {
-	// // Perform invalidation logic
-	// // Create a new Anexa entity with TipAnexa NEVALIDATA
-	// Anexa emptyAnexa = new Anexa();
-	// emptyAnexa.setId(anexa.getId());
-	// emptyAnexa.setTipAnexa(TipAnexa.NEVALIDATA);
-	//
-	// // Save the new Anexa entity
-	// return anexaRepo.save(emptyAnexa);
-	// } else {
-	// log.error("Anexa with ID {} has an invalid TipAnexa: {}", id,
-	// anexa.getTipAnexa());
-	// throw new ValidationException("Anexa has an invalid TipAnexa: " +
-	// anexa.getTipAnexa());
-	// }
-	// } catch (ResponseStatusException e) {
-	// // Log the error and rethrow the exception
-	// log.error(e.getMessage());
-	// throw e;
-	// } catch (ValidationException e) {
-	// // Log the error and rethrow the exception
-	// log.error(e.getMessage());
-	// throw e;
-	// } catch (Exception e) {
-	// // Log the error and throw a new Exception
-	// log.error("An error occurred while validating Anexa with ID: {}", id, e);
-	// throw new RuntimeException("An error occurred while validating Anexa");
-	// }
-	// }
+		if (anexa.getTipAnexa().equals(TipAnexa.NEVALIDATA)) {
+			if (cursaUtil.checkSameClient(cursaList) == null) {
+				log.error("Anexa {} could not be validated: different clients in curse list", id);
+				throw new RuntimeException("Anexa nu a putut fi validata, cursele nu apartin aceluiasi client!");
+			}
+
+			anexa.setKmTotal(cursaUtil.calculateKmTotal(cursaList));
+			anexa.setTarifMediu(cursaUtil.calculateTarifMediu(cursaList));
+			anexa.setTva(cursaUtil.calculateTva(cursaList));
+			anexa.setValoare(cursaUtil.calculateValoare(cursaList));
+			anexa.setTipAnexa(TipAnexa.VALIDATA);
+			return anexaRepo.save(anexa);
+
+		} else {
+			// Invalidate logic: Reset calculated values
+			anexa.setKmTotal(0);
+			anexa.setTarifMediu(0f);
+			anexa.setTva(0f);
+			anexa.setValoare(0f);
+			anexa.setTipAnexa(TipAnexa.NEVALIDATA);
+			return anexaRepo.save(anexa);
+		}
+	}
 
 	public InputStreamResource generateAnexa(long id, UUID companyId) {
 		Anexa anexa = getAnexaEntityByIdAndCompanyId(id, companyId);
 		try {
 			return cursaUtil.generatorPdfItext(anexa);
 		} catch (Exception e) {
-			// TODO: handle exception
-            log.error("Anexa generation did not worked{}", String.valueOf(e));
-			return null;
+			log.error("Anexa generation failed for ID {}: {}", id, e.getMessage());
+			throw new RuntimeException("PDF generation failed");
 		}
 	}
-
 }

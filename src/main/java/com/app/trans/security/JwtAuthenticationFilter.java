@@ -57,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		final String authHeader = request.getHeader("Authorization"); // Get the token from the request's header
 		final String jwt;
 		final String username;
-		System.out.println("Filter executed");
 
 		jwt = authHeader.substring(7); // Extract the token
 		username = jwtService.extractUsername(jwt); // Extract username from token
