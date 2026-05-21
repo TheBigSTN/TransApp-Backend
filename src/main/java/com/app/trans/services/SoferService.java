@@ -56,6 +56,11 @@ public class SoferService {
                 new ResourceNotFoundException("Sofer Not Found with ID: " + id));
     }
 
+    public Sofer getSoferByCnpAndCompanyId(String cnp, UUID companyId) {
+        return soferRepo.findByCnpAndCompanyId(cnp, companyId).orElseThrow(() ->
+                new ResourceNotFoundException("Sofer Not Found with cnp: " + cnp));
+    }
+
     public List<SoferDTO> getAllSofer(UUID companyId) {
         return soferRepo.findAllByCompanyId(companyId).stream()
                 .map(soferDTOMapper)

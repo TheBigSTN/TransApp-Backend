@@ -32,7 +32,8 @@ public class AlimentareService {
 
     @Transactional
     public AlimentareDTO addAlimentare(AlimentareDTO dto, UUID companyId) {
-        Masina masina = masinaRepo.getReferenceById(dto.getMasinaId());
+        Masina masina = masinaRepo.findByNumar(dto.getMasinaNumar())
+                .orElseThrow(() -> new RuntimeException("Masina nu exista"));
         Company company = companyRepo.getReferenceById(companyId);
         Alimentare alimentare = Alimentare.builder()
                 .data_alimentare(dto.getDataAlimentare())

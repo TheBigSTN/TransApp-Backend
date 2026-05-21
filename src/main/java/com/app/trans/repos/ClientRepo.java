@@ -13,4 +13,6 @@ public interface ClientRepo extends JpaRepository<Client, Long> {
     Optional<Client> findByIdAndCompanyId(long Id, UUID companyId);
 
     List<Client> findAllByCompanyId(UUID companyId);
+
+    Optional<Client> findByCuiAndCompanyId(String Cui, UUID companyID);
 }

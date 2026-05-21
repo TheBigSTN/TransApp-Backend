@@ -15,4 +15,6 @@ public interface SoferRepo extends JpaRepository<Sofer, Long> {
     List<Sofer> findAllByCompanyId(UUID companyId);
 
     Optional<Sofer> findByIdAndCompanyId(Long id, UUID companyId);
+
+    Optional<Sofer> findByCnpAndCompanyId(String Cnp, UUID companyId);
 }

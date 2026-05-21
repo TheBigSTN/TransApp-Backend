@@ -38,14 +38,20 @@ public class CursaService {
 
     @Transactional
     public CursaDTO addCursa(CursaDTO cursaDTO, UUID companyId) {
+        Masina masina = masinaService.getMasinaByNumarInmatriculare(cursaDTO.getMasinaNumar(), companyId);
+        //                                         CUI field not added using numeclient instead
+        Client client = clientService.getClientByCUI(cursaDTO.getNumeClient(), companyId);
+        //
+        Sofer sofer = soferService.getSoferByCnpAndCompanyId(cursaDTO.getNumeSofer(), companyId);
+
         Cursa cursa = Cursa.builder()
                 .km(cursaDTO.getKm())
                 .dataEfectuare(cursaDTO.getDataEfectuare())
                 .livrare(cursaDTO.getLivrare())
                 .tarif(cursaDTO.getTarif())
-                .masina(masinaService.getMasinaEntityById(cursaDTO.getIdMasina(), companyId))
-                .client(clientService.getClientEntityById(cursaDTO.getIdClient()))
-                .sofer(soferService.getSoferEntityById(cursaDTO.getIdSofer(), companyId))
+                .masina(masina)
+                .client(client)
+                .sofer(sofer)
                 .company(companyRepo.getReferenceById(companyId))
                 .build();
 

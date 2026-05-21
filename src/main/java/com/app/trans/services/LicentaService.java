@@ -38,8 +38,8 @@ public class LicentaService {
                 .company(companyRepo.getReferenceById(companyId))
                 .build();
 
-        if (licentaDTO.getMasinaId() != 0) {
-            licenta.setMasina(masinaService.getMasinaEntityById(licentaDTO.getMasinaId(), companyId));
+        if (licentaDTO.getMasinaId() == 0) {
+            licenta.setMasina(masinaService.getMasinaByNumarInmatriculare(licentaDTO.getMasinaNumar(), companyId));
         }
 
         Licenta savedLicenta = licentaRepo.save(licenta);

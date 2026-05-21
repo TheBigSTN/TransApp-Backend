@@ -60,6 +60,11 @@ public class ClientService {
         return clientRepo.findById(id).orElseThrow(() ->
             new ResourceNotFoundException("Client Not Found with ID: " + id));
 	}
+
+    public Client getClientByCUI(String cui, UUID companyId) {
+        return clientRepo.findByCuiAndCompanyId(cui, companyId).orElseThrow(() ->
+                new ResourceNotFoundException("Client Not Found with CUI: " + cui));
+    }
     
     @Transactional
     public void deleteClient(long id, UUID companyId) {

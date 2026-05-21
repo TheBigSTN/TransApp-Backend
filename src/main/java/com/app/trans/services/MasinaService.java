@@ -60,6 +60,11 @@ public class MasinaService {
             new ResourceNotFoundException("Masina Not Found with ID: " + id));
     }
 
+    public Masina getMasinaByNumarInmatriculare(String numarInmatricualre, UUID companyId) {
+        return masinaRepo.findByNumarAndCompanyId(numarInmatricualre, companyId).orElseThrow(() ->
+                new ResourceNotFoundException("Masina Not Found with ID: " + numarInmatricualre));
+    }
+
     @Transactional
     public void deleteMasina(long id, UUID companyId) {
         Masina masina = masinaRepo.findByIdAndCompanyId(id, companyId).orElseThrow(() ->

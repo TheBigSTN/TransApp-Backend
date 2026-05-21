@@ -14,4 +14,8 @@ public interface MasinaRepo extends JpaRepository<Masina, Long> {
     List<Masina> findAllByCompanyId(UUID companyId);
 
     Optional<Masina> findByIdAndCompanyId(Long id, UUID companyId);
+
+    Optional<Masina> findByNumar(String numar);
+
+    Optional<Masina> findByNumarAndCompanyId(String numar, UUID companyId);
 }
